@@ -6,11 +6,39 @@ const UseFetchAppointment = () => {
 
     function fetchAllAppointment() {
         setLoading(true);
-        fetch('http://localhost:8080/appointments/getall')
+        fetch('http://avalaibiliyapp-env.eba-mf43a3nx.us-west-2.elasticbeanstalk.com/availability/all')
             .then((response) => response.json())
             .then((appointment) => {
-                console.log(appointment);
-                setData(appointment);
+                // console.log(appointment);
+                // setData(appointment);
+                setData([
+                    {
+                      id: 1,
+                      title: 'event 1',
+                      start: '2023-06-08T12:00:00',
+                      end: '2023-06-08T12:30:00',
+                      color: 'green',
+                      disable: true
+                    },
+                    {
+                      id: 2,
+                      title: 'event 2',
+                      start: '2023-06-07T16:00:00',
+                      end: '2023-06-07T18:00:00',
+                    },
+                    {
+                        id: 2,
+                        title: 'event 3',
+                        start: '2023-06-09T10:30:00',
+                        end: '2023-06-09T11:00:00',
+                      },
+                      {
+                        id: 2,
+                        title: 'event 3',
+                        start: '2023-06-09T16:30:00',
+                        end: '2023-06-09T17:00:00',
+                      }
+                  ])
                 setLoading(false);
             })
             .catch(error => {

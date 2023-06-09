@@ -17,7 +17,7 @@ function Modal({open, handleClose, title }) {
       >
 
         <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-          {title}
+          Book an Appointment
         </DialogTitle>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
