@@ -3,9 +3,15 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
+import { CircularProgress } from '@mui/material';
 
 
-function Modal({open, handleClose, title }) {
+function Modal({open, handleClose, loader, bookAnAppointment }) {
+
+  const handleSubmit = () => {
+    console.log('submit');
+    bookAnAppointment();
+  }
 
   return (
     <div>
@@ -20,8 +26,13 @@ function Modal({open, handleClose, title }) {
           Book an Appointment
         </DialogTitle>
         <DialogActions>
-          <Button autoFocus onClick={handleClose}>
+          <Button onClick={handleClose}>
             Cancel
+          </Button>
+          <Button onClick={handleSubmit}>
+            {
+              loader ? <CircularProgress /> : 'submit'
+            }
           </Button>
         </DialogActions>
       </Dialog>

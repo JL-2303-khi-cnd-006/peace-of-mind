@@ -4,16 +4,17 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Modal from './Modal';
-import { Button } from '@mui/material';
 
-import UseFetchAppointment from '../../hooks/UseFetchAppointment';
+import UseFetchAppointment from '../../hooks/UseFetchAvailabilities';
 import moment from 'moment';
 
 const Calendar = () => {
 
   const [open, setOpen] = useState(false);
-  const { data, loading, fetchAllAppointment } = UseFetchAppointment();
+  const [loader, setLoader] = useState(false);
+  const { data, loading, setLoading, fetchAllAppointment } = UseFetchAppointment();
   const [event, setEvent] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
 
   useEffect(() => {
@@ -21,17 +22,18 @@ const Calendar = () => {
   }, [])
 
   useEffect(() => {
-
     if (data) {
-      const formattedEvents = data.map(appointment => ({
-        id: appointment.id,
-        title: appointment.title,
-        start: appointment.start,
-        end: appointment.end,
-        color: appointment.color
-
-      }));
-
+      const formattedEvents = data.map(appointment => {
+        const isPast = new Date(appointment.start) < new Date();
+        console.log(isPast);
+        return {
+          id: appointment.id,
+          title: isPast ? 'Past Event' : 'Future Event',
+          start: appointment.created,
+          end: appointment.created,
+          color: isPast ? 'green' : 'grey',
+        };
+      });
       setEvent(formattedEvents);
     }
   }, [data]);
@@ -48,48 +50,68 @@ const Calendar = () => {
   const handleDateSelect = (selectInfo) => {
 
     handleClickOpen();
-
-    // let title = prompt('Please enter a new title for your event')
-    // let calendarApi = selectInfo.view.calendar
-
-    // calendarApi.unselect()
-
-    // if (title) {
-    // calendarApi.addEvent({
-    //     id: events.length++,
-    //     title,
-    //     start: selectInfo.startStr,
-    //     end: selectInfo.endStr,
-    //     allDay: selectInfo.allDay
-    // })data
-    // }
   }
 
   const handleEventClick = (clickInfo) => {
     
-    console.log(clickInfo.event.endStr);
-    //const dateIsBefore = moment('2023-06-08T10:15:00Z').isBefore(moment(clickInfo.event.endStr));
-    
+    console.log(clickInfo.event.endStr);    
     let dateNow = moment().format('YYYY-MM-DDTHH:mm:ss');
-
     console.log(dateNow)
 
     if(clickInfo.event.endStr < dateNow){
-      
       console.log( 'Date is before');
       
     }else{
-      
-      // console.log(clickInfo.event.endStr);
+      setSelectedEvent(clickInfo.event);
       handleClickOpen();
     }
-
-
-    // console.log(clickInfo);
-    // if (prompt(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-    //     clickInfo.event.remove()
-    // }
   }
+
+  const bookAnAppointment = async () => {
+    setLoader(true);
+    setLoading(true);
+    try {
+      console.log(selectedEvent);
+      let appointment= {
+        availability_id : selectedEvent.id,
+        patient_id : 3,
+        confirmed : false,
+        deleted : 0
+      }
+
+      const response = await fetch('http://appointment.us-west-2.elasticbeanstalk.com/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(appointment),
+      });
+  
+      if (response.ok) {
+        const responseData = await response.json();
+
+        let newData = data.map(item=>{
+          if(item.id === responseData.availability_id){
+            return {...item, color: 'red'}
+          }
+          else{
+            return item;
+          }})
+          
+        setEvent([...newData]);
+        
+        setLoading(false);
+        setLoader(false);
+        setOpen(false);
+        console.log(data);
+        console.log('Appointment submitted successfully');
+      } else {
+        console.error('Failed to submit appointment');
+      }
+    } catch (error) {
+      console.error('Failed to submit appointment:', error);
+    }
+  };
 
 
   return (
@@ -114,12 +136,12 @@ const Calendar = () => {
               initialEvents={event}
               select={handleDateSelect}
               eventClick={handleEventClick}
-              timeZone={'UTC'}
+              // timeZone={'UTC'}
             />
           </main>)
       }
 
-      <Modal open={open} handleClose={handleClose} />
+      <Modal open={open} handleClose={handleClose} loader={loader} bookAnAppointment={bookAnAppointment} />
 
     </div>
   )
