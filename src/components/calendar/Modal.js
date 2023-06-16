@@ -5,7 +5,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import { CircularProgress } from '@mui/material';
 
-
 function Modal({open, handleClose, loader, bookAnAppointment }) {
 
   const handleSubmit = () => {
@@ -22,19 +21,31 @@ function Modal({open, handleClose, loader, bookAnAppointment }) {
         aria-labelledby="draggable-dialog-title"
       >
 
-        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+        <DialogTitle id="draggable-dialog-title" style={{ backgroundColor: '#147c74', color: '#ffffff' }} >
           Book an Appointment
-        </DialogTitle>
-        <DialogActions>
-          <Button onClick={handleClose}>
+       
+        <DialogActions sx={
+          {
+            marginTop: '1rem',
+            '& .btn':{
+              color: '#ffffff',
+              ':hover':{
+                background : 'rgb(3 44 41)'
+              }
+
+            },
+          }
+        } >
+          <Button onClick={handleClose} className='btn'>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit} className='btn'>
             {
-              loader ? <CircularProgress /> : 'submit'
+              loader ? <CircularProgress /> : 'Book'
             }
           </Button>
         </DialogActions>
+        </DialogTitle>
       </Dialog>
     </div>
   );

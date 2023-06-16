@@ -1,50 +1,16 @@
 import { useState } from "react";
 
-const UseFetchAppointment = () => {
+const UseFetchAvailability = () => {
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(null);
 
-    function fetchAllAppointment() {
+    function fetchAllAvailability() {
         setLoading(true);
-        fetch('http://avalaibiliyapp-env.eba-mf43a3nx.us-west-2.elasticbeanstalk.com/availability/all')
+        fetch('http://avalaibiliyapp-env.eba-mf43a3nx.us-west-2.elasticbeanstalk.com/availability/counselor/2')
             .then((response) => response.json())
-            .then((appointment) => {
-                console.log(appointment);
-                setData(appointment);
-                // setData([
-                //     {
-                //       id: 1,
-                //       title: 'event 1',
-                //       start: '2023-06-08T12:00:00',
-                //       end: '2023-06-08T12:30:00',
-                //       color: 'green',
-                //       disable: true
-                //     },
-                //     {
-                //       id: 2,
-                //       title: 'event 2',
-                //       start: '2023-06-07T16:00:00',
-                //       end: '2023-06-07T18:00:00',
-                //     },
-                //     {
-                //         id: 2,
-                //         title: 'event 3',
-                //         start: '2023-06-09T10:30:00',
-                //         end: '2023-06-09T11:00:00',
-                //       },
-                //       {
-                //         id: 2,
-                //         title: 'event 3',
-                //         start: '2023-06-09T16:30:00',
-                //         end: '2023-06-09T17:00:00',
-                //       },
-                //       {
-                //         id: 3,
-                //         title: 'event 33',
-                //         start: '2023-06-12T23:30:00',
-                //         end: '2023-06-12T24:00:00',
-                //       }
-                //   ])
+            .then((availability) => {
+                console.log(availability);
+                setData(availability);
                 setLoading(false);
             })
             .catch(error => {
@@ -53,8 +19,8 @@ const UseFetchAppointment = () => {
             })
     }
 
-    return { fetchAllAppointment, data, loading, setLoading };
+    return { fetchAllAvailability, data, loading, setLoading };
 }
 
 
-export default UseFetchAppointment;
+export default UseFetchAvailability;
