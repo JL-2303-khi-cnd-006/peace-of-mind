@@ -5,11 +5,16 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import { CircularProgress } from '@mui/material';
 
-function Modal({open, handleClose, loader, bookAnAppointment }) {
+function Modal({type, open, handleClose, loader, bookAnAppointment, addAvailability }) {
 
   const handleSubmit = () => {
     console.log('submit');
-    bookAnAppointment();
+    if(type === 'Appointment'){
+      bookAnAppointment();
+    }
+    else{
+      addAvailability();
+    }
   }
 
   return (
@@ -22,8 +27,9 @@ function Modal({open, handleClose, loader, bookAnAppointment }) {
       >
 
         <DialogTitle id="draggable-dialog-title" style={{ backgroundColor: '#147c74', color: '#ffffff' }} >
-          Book an Appointment
-       
+          {
+            type === "Appointment" ?  "Book An Appointment" : "Add Availability"
+          }       
         <DialogActions sx={
           {
             marginTop: '1rem',
@@ -41,7 +47,7 @@ function Modal({open, handleClose, loader, bookAnAppointment }) {
           </Button>
           <Button onClick={handleSubmit} className='btn'>
             {
-              loader ? <CircularProgress /> : 'Book'
+              loader ? <CircularProgress /> : ( type === "Apppointment" ? 'Book' : "Add")
             }
           </Button>
         </DialogActions>

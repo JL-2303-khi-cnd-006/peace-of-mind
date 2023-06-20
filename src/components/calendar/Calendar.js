@@ -20,6 +20,7 @@ const Calendar = () => {
   const { appointmentData, fetchAllAppointment } = UseFetchAppointment();
   const [event, setEvent] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [select, setSelect] = useState(null);
 
 
   useEffect(() => {
@@ -33,6 +34,9 @@ const Calendar = () => {
         
         const startDate = new Date(availabilities.date);
         const endDate = new Date(startDate.getTime() + 30 * 60 * 1000);
+
+        console.log(startDate)
+        console.log(endDate)
 
         const isPast = new Date(startDate) < new Date();
         const isBooked = appointmentData.some(item => item.availability_id === availabilities.id);
@@ -49,16 +53,13 @@ const Calendar = () => {
         } else {
           return {
             id: availabilities.id,
-            title: isBooked ? 'Booked Appointment' : 'Available Appointment',
+            title: isBooked ? 'Booked' : 'Available',
             start: availabilities.date,
             end:  endDate.toISOString(),
             color: isBooked ? '#dc3545' : '#007bff',
           };
         }
-      });
-
-      console.log(formattedEvents);
-    
+      });    
       setEvent(formattedEvents);
     }
   }, [data, appointmentData]);
@@ -73,20 +74,36 @@ const Calendar = () => {
 
 
   const handleDateSelect = (selectInfo) => {
+    console.log(selectInfo);
 
-    handleClickOpen();
+    let dateNow = moment().format('YYYY-MM-DDTHH:mm:ss');
+    console.log(dateNow)
+
+    if(selectInfo.endStr < dateNow ){
+      console.log( 'Date is before');
+      return false;
+      
+    }else{
+      console.log(selectInfo.startStr)
+      setSelect(false)
+      setSelectedEvent(selectInfo.startStr);
+      handleClickOpen();
+    }
+
   }
 
   const handleEventClick = (clickInfo) => {
     
-    console.log(clickInfo.event);    
+    console.log(clickInfo.event.startStr);    
     let dateNow = moment().format('YYYY-MM-DDTHH:mm:ss');
     console.log(dateNow)
 
     if(clickInfo.event.startStr < dateNow || clickInfo.event.backgroundColor === '#dc3545' ){
       console.log( 'Date is before');
+     
       
     }else{
+      setSelect(true)
       setSelectedEvent(clickInfo.event);
       handleClickOpen();
     }
@@ -139,6 +156,62 @@ const Calendar = () => {
   };
 
 
+  const addAvailability = async () => {
+    setLoader(true);
+    setLoading(true);
+    try {
+      console.log(selectedEvent);
+
+      let dateNow = moment().format('YYYY-MM-DDTHH:mm:ssZ');
+      console.log(dateNow);
+
+      const availability = {
+          counselorId : 2,
+          created : dateNow,
+          updated : dateNow,
+          date : selectedEvent
+      }
+
+      const response = await fetch('http://avalaibiliyapp-env.eba-mf43a3nx.us-west-2.elasticbeanstalk.com/availability/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(availability),
+      });
+  
+      if (response.ok) {
+        const responseData = await response.json();
+
+        console.log(responseData);
+
+        const startDate = new Date(responseData.date);
+        const endDate = new Date(startDate.getTime() + 30 * 60 * 1000);
+
+        const obj = {
+          id: responseData.id,
+          title: 'Available',
+          start: startDate,
+          end: endDate.toISOString(),
+          color: '#007bff',
+        }
+          
+        setEvent([...event, obj]);
+        
+        setLoading(false);
+        setLoader(false);
+        setOpen(false);
+        console.log(data);
+        console.log('Availability Added successfully');
+      } else {
+        console.error('Failed to submit Availability');
+      }
+    } catch (error) {
+      console.error('Failed to submit Availability:', error);
+    }
+  };
+
+
   return (
     <div style={{ height :'50%', width: '50%' }}>
       <h1>Calendar</h1>
@@ -155,8 +228,8 @@ const Calendar = () => {
               }}
               initialView='timeGridWeek'
               editable={false}
-              // selectable={true}
-              themeSystem = 'bootstrap'
+              selectable={true}
+              // themeSystem = 'bootstrap'
               selectMirror={true}
               dayMaxEvents={true}
               initialEvents={event}
@@ -168,8 +241,15 @@ const Calendar = () => {
           </main>)
       }
 
-    <Modal open={open} handleClose={handleClose} loader={loader} bookAnAppointment={bookAnAppointment} />
 
+      {
+        select ? 
+          <Modal open={open} handleClose={handleClose} loader={loader} bookAnAppointment={bookAnAppointment} type={"Appointment"} />
+          :
+          <Modal open={open} handleClose={handleClose} loader={loader} addAvailability={addAvailability} type={"Availability"} />
+
+      }
+    
     </div>
   )
 }
