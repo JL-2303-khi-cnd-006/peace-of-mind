@@ -34,6 +34,8 @@ function createSurveyPdfModel(surveyModel) {
 }
 function SurveyComponent() {
   const survey = new Model(jsonData);
+
+
   const handleClick = async () => {
     // event.preventDefault();
     createSurveyPdfModel(survey);
@@ -179,10 +181,10 @@ function SurveyComponent() {
         console.log(response);
         console.log('PDF uploaded ');
 
-        if(!response.location){
-          console.log("something went wrong")
-          return;
-        }
+          if(!response.location){
+            console.log("something went wrong")
+            return;
+          }
 
         const report = {
           "patient_id": 1,
@@ -210,7 +212,7 @@ function SurveyComponent() {
     };
 
     survey.onComplete.add((sender, options) => {
-      console.log(JSON.stringify(sender.data, null, 3));
+      // console.log(JSON.stringify(sender.data, null, 3));
       survey.data=sender.data;
       const data =createSurveyPdfModel(survey);
       console.log({data});
